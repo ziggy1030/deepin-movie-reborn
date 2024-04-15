@@ -10,7 +10,8 @@ set(CMD_NAME dmr)
 add_definitions(-D_LIBDMR_)
 remove_definitions(-D_MOVIE_USE_)
 
-pkg_check_modules(Gst REQUIRED IMPORTED_TARGET gstreamer-1.0 glib-2.0)
+pkg_check_modules(Gst REQUIRED IMPORTED_TARGET gstreamer-1.0)
+pkg_check_modules(Glib REQUIRED IMPORTED_TARGET glib-2.0)
 
 include_directories(${CMAKE_INCLUDE_CURRENT_DIR})
 
@@ -24,7 +25,7 @@ add_library(${CMD_NAME} SHARED ${SRCS})
 set_target_properties(${CMD_NAME} PROPERTIES VERSION 0.1.0 SOVERSION 0.1)
 
 target_include_directories(${CMD_NAME} PUBLIC
-    ${PROJECT_SOURCE_DIR}/../common ${PROJECT_SOURCE_DIR}/../backends/mediaplayer ${PROJECT_SOURCE_DIR}/../backends/mpv /usr/include/glib-2.0 /usr/include/gstreamer-1.0)
+    ${PROJECT_SOURCE_DIR}/../common ${PROJECT_SOURCE_DIR}/../backends/mediaplayer ${PROJECT_SOURCE_DIR}/../backends/mpv ${Gst_INCLUDE_DIRS} ${Glib_INCLUDE_DIRS})
 
 target_link_libraries(${CMD_NAME} PkgConfig::Dtk Qt5::Widgets Qt5::Concurrent
     Qt5::Network Qt5::X11Extras Qt5::Sql Qt5::Svg Qt5::Multimedia Qt5::MultimediaWidgets Qt5::DBus PkgConfig::Gst GL)

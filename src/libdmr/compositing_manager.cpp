@@ -235,22 +235,35 @@ bool CompositingManager::isCanHwdec()
     return m_bCanHwdec;
 }
 
-QString  CompositingManager::libPath(const QString &sLib)
+QString  CompositingManager::libPath(const QString &strlib)
 {
-    QDir dir;
-    QString path  = QLibraryInfo::location(QLibraryInfo::LibrariesPath);
-    dir.setPath(path);
-    QStringList list = dir.entryList(QStringList() << (sLib + "*"), QDir::NoDotAndDotDot | QDir::Files); //filter name with strlib
-    if (list.contains(sLib)) {
-        return (path+ QDir::separator() + sLib);
-    } else {
-        list.sort();
+    QDir  dir;
+    QStringList environment = QProcess::systemEnvironment();
+    QString str, t_str;
+    foreach (str, environment) {
+        if (str.startsWith("LD_LIBRARY_PATH=")) {
+            t_str = str;
+            break;
+        }
     }
-
-    if(list.size() > 0)
-        return (path + QDir::separator() + list.last());
-    else
+    if (t_str.isEmpty()) {
         return QString();
+    }
+    qDebug() << t_str;
+    QStringList liststr = t_str.split("=").at(1).split(":");
+    QStringList t_list;
+    QString t_libPath;
+    for (size_t i = 0; i < liststr.count() ; i++) {
+        QString path  = liststr.at(i);
+        dir.setPath(path);
+        QStringList list = dir.entryList(QStringList() << (strlib + "*"), QDir::NoDotAndDotDot | QDir::Files); //filter name with strlib
+        if (!list.isEmpty()) {
+            t_libPath = path + "/" + list.first();
+            break;
+        }
+    }
+    qDebug() << t_libPath;
+    return t_libPath;
 }
 
 void CompositingManager::setCanHwdec(bool bCanHwdec)

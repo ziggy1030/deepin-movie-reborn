@@ -10,7 +10,7 @@ set(CMD_NAME dmr_test)
 set(CMAKE_CXX_FLAGS "-std=c++1y -fpermissive -Wno-error")
 
 include_directories(${CMAKE_INCLUDE_CURRENT_DIR})
-
+include_directories(/runtime/include)
 find_package(Qt5Widgets)
 find_package(Qt5Concurrent)
 find_package(Qt5Network)
