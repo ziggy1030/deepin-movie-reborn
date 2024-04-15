@@ -14,7 +14,7 @@ add_definitions(-D_MOVIE_USE_)
 
 include_directories(${CMAKE_INCLUDE_CURRENT_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-
+include_directories(/runtime/include)
 find_package(Qt5Widgets)
 find_package(Qt5DBus)
 find_package(Qt5X11Extras)
@@ -31,7 +31,10 @@ pkg_check_modules(Dtk REQUIRED IMPORTED_TARGET dtkwidget)
 pkg_check_modules(Dtk REQUIRED IMPORTED_TARGET dtkcore)
 pkg_check_modules(Xcb REQUIRED IMPORTED_TARGET xcb xcb-shape)
 pkg_check_modules(DBusextended REQUIRED IMPORTED_TARGET dbusextended-qt5)
-pkg_check_modules(Gst REQUIRED IMPORTED_TARGET gobject-2.0)
+pkg_check_modules(Gob REQUIRED IMPORTED_TARGET gobject-2.0)
+pkg_check_modules(Gst REQUIRED IMPORTED_TARGET gstreamer-1.0)
+pkg_check_modules(Glib REQUIRED IMPORTED_TARGET glib-2.0)
+pkg_check_modules(MPRIS REQUIRED IMPORTED_TARGET mpris-qt5)
 # IMPORTED_TARGET failed to work for some of libs under flatpak env
 pkg_check_modules(Other REQUIRED  gsettings-qt)
 
@@ -51,7 +54,7 @@ file(GLOB_RECURSE MEDIAPLAYER_SRCS LIST_DIRECTORIES false backends/mediaplayer/*
 list(APPEND SRCS ${MPV_SRCS} ${MEDIAPLAYER_SRCS})
 list(APPEND PROJECT_INCLUDE ${PROJECT_SOURCE_DIR}/src/backends/mpv)
 list(APPEND PROJECT_INCLUDE ${PROJECT_SOURCE_DIR}/src/backends/mediaplayer)
-list(APPEND PROJECT_INCLUDE /usr/include/glib-2.0 /usr/include/gstreamer-1.0)
+list(APPEND PROJECT_INCLUDE ${Glib_INCLUDE_DIRS} ${Gst_INCLUDE_DIRS})
 #~
 
 set (DTK_SETTINGS_TOOLS_EXECUTABLE ${DTKCORE_TOOL_DIR}/dtk-settings)
@@ -77,10 +80,10 @@ endif ()
 
 add_executable(${CMD_NAME} ${SRCS} ${RCS} ${QM})
 
-target_include_directories(${CMD_NAME} PUBLIC ${PROJECT_INCLUDE})
+target_include_directories(${CMD_NAME} PUBLIC ${PROJECT_INCLUDE} ${MPRIS_INCLUDE_DIRS})
 
 set(TARGET_LIBS X11 Xtst PkgConfig::Xcb Qt5::Widgets Qt5::X11Extras Qt5::Network Qt5::DBus Qt5::Sql Qt5::Svg Qt5::Multimedia
-    Qt5::MultimediaWidgets PkgConfig::Dtk PkgConfig::MPRIS PkgConfig::DBusextended PkgConfig::Gst GL va va-x11
+    Qt5::MultimediaWidgets PkgConfig::Dtk ${MPRIS_LIBRARIES} PkgConfig::DBusextended PkgConfig::Gob GL va va-x11
     Qt5::Concurrent Qt5::Xml)
 
 target_link_libraries(${CMD_NAME} ${TARGET_LIBS} ${Other_LIBRARIES})
